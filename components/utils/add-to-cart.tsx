@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ShoppingCart, Check, Loader2, Zap, ShoppingBag } from "lucide-react";
 import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
 
 export type CartItem = {
   _id: string;
@@ -233,12 +234,12 @@ const AddToCartButton = ({
 
         {/* Add to Cart / View in Cart / Out of Stock */}
         {isOutOfStock ? (
-          <Button  disabled>
+          <Button disabled>
             Out of Stock
           </Button>
         ) : inCart ? (
           <Button
-          variant={'outline'}
+            variant={"outline"}
             onClick={() => router.push("/cart")}
           >
             <Check size={16} strokeWidth={2} className="check-icon" />
@@ -246,7 +247,8 @@ const AddToCartButton = ({
           </Button>
         ) : (
           <Button
-          variant={'secondary'}
+            variant={"secondary"}
+                  className="w-full"
             onClick={() => addToCart(false)}
             disabled={isLoading || disabled}
           >
@@ -263,16 +265,51 @@ const AddToCartButton = ({
         {showBuyNow && (
           <Button
             onClick={handleBuyNow}
+            className="w-full"
             disabled={isBuyNowLoading || disabled || isOutOfStock}
           >
-            {isBuyNowLoading && (
-              <Loader2 size={16} className="animate-spin" />
-            ) }
+            {isBuyNowLoading && <Loader2 size={16} className="animate-spin" />}
             {isBuyNowLoading ? "Processing..." : "Buy Now"}
           </Button>
         )}
 
       </div>
+
+      {/* Trust Signs */}
+      {showBuyNow && (
+        <div style={{ marginTop: "14px", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <span style={{ fontSize: "10px", color: "#999", letterSpacing: "0.08em", textTransform: "uppercase" }}>Secure Checkout</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", justifyContent: "center" }}>
+            {[
+              { src: "/gpay.png", alt: "Google Pay" },
+              { src: "/phonepe-1.svg", alt: "PhonePe" },
+              { src: "/upi.png", alt: "UPI" },
+              { src: "/rupay.png", alt: "RuPay" },
+              { src: "/paytm.jpg", alt: "Paytm" },
+            ].map(({ src, alt }) => (
+              <Badge variant={'secondary'} className="bg-white border-primary border">
+              <img
+                key={src}
+                src={src}
+                alt={alt}
+                style={{ 
+                  height: "36px", 
+                  width: "36px", 
+                  objectFit: "contain", 
+                  opacity: 0.8 
+                }}
+              />
+            </Badge>
+            ))}
+          </div>
+        </div>
+      )}
     </>
   );
 };

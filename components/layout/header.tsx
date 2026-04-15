@@ -484,7 +484,7 @@ function Header() {
                       onClick={() => handleCategoryClick("")}
                       className={`cat-pill flex-shrink-0 flex flex-col items-center gap-1 px-3 py-2 rounded-xl text-xs font-medium ${
                         !selectedCategory
-                          ? "active bg-primary/10 text-primary ring-1 ring-primary/20"
+                          ? "active bg-primary text-white "
                           : "bg-gray-50 text-muted-foreground hover:bg-gray-100"
                       }`}
                     >
@@ -496,7 +496,7 @@ function Header() {
                           opacity: isScrolled ? 0 : 1,
                         }}
                       >
-                        <IconShoppingBag size={20} className="text-primary" />
+                        <IconShoppingBag size={20} className="text-white" />
                       </div>
                       <span className="truncate max-w-[60px]">For you</span>
                     </button>

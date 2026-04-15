@@ -51,7 +51,7 @@ function ProductCard({
   }
 
   return (
-    <Link href={`/product/${id?.toLowerCase() ?? '#'}`} passHref>
+    <Link href={`/product/${id}`} passHref>
       <motion.div
         className="group flex flex-col bg-transparent"
         whileHover={{ y: -3 }}

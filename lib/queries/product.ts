@@ -25,6 +25,7 @@ export async function getHomeProducts(): Promise<Product[]> {
   );
   if (!res.ok) return [];
   const data = await res.json();
+  console.log(data)
   return data.data || [];
 }
 

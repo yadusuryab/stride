@@ -7,7 +7,7 @@ interface Props {
 
 export async function GET(request: Request, { params }: Props) {
   const { id } = await params;
-
+  console.log(id)
   // Query for both old schema (just images) and new schema (images + videos)
   const query = `*[_type == "product" && _id == $id][0]{
     _id,

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Sans, DM_Mono, Cormorant_Garamond } from "next/font/google";
+import { DM_Sans, DM_Mono, Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
@@ -9,7 +9,7 @@ import { ClientShell } from "@/components/layout/client-shell";
 
 // ─── Fonts ────────────────────────────────────────────────────────────────────
 
-const dmSans = DM_Sans({
+const dmSans = Inter({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
   variable: "--font-sans",
