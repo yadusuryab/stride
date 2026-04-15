@@ -151,7 +151,7 @@ export default function CheckoutPage() {
 
     const message = buildWhatsAppMessage(data, cart, total, shippingCharges, paymentMethod);
     const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP;
-    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    const url = `https://wa.me/919495642846?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
   };
 
