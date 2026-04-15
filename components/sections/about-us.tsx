@@ -46,12 +46,12 @@ const services = [
     description:
       "Every piece gets a thorough quality check before packing — no nonsense, just reliable looks.",
   },
-  {
-    icon: Banknote,
-    title: "COD Available",
-    description:
-      "Cash on Delivery across India — order without worry and pay when the parcel arrives.",
-  },
+  // {
+  //   icon: Banknote,
+  //   title: "COD Available",
+  //   description:
+  //     "Cash on Delivery across India — order without worry and pay when the parcel arrives.",
+  // },
 ];
 
 const stats = [

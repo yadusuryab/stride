@@ -399,7 +399,7 @@ export default function CheckoutPage() {
               </label>
 
               {/* COD - Disabled if any product doesn't support it */}
-              <label className={`pay-card flex items-center gap-4 p-4 rounded-xl border-2 transition-all duration-200
+              {/* <label className={`pay-card flex items-center gap-4 p-4 rounded-xl border-2 transition-all duration-200
                 ${!isCodAvailableForCart ? "opacity-50 cursor-not-allowed" : ""}
                 ${paymentMethod === "cod" && isCodAvailableForCart ? "border-foreground bg-foreground" : "border-[#e0d8cb] bg-[#faf7f2] hover:border-[#c4b8a4]"}`}>
                 <input 
@@ -426,17 +426,17 @@ export default function CheckoutPage() {
                   ${paymentMethod === "cod" && isCodAvailableForCart ? "bg-amber-400 text-foreground" : "bg-amber-50 text-amber-600"}`}>
                   +₹180 extra
                 </span>
-              </label>
+              </label> */}
 
               {/* COD Unavailable Message */}
-              {!isCodAvailableForCart && (
+          
                 <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
                   <p className="text-xs text-amber-700 flex items-center gap-2">
                     <AlertCircle className="w-3.5 h-3.5" />
                     Cash on Delivery is not available for some items in your cart. Please choose Online Payment.
                   </p>
                 </div>
-              )}
+             
             </div>
           </div>
 
