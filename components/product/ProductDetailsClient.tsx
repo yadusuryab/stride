@@ -108,29 +108,21 @@ const ColorSelector = ({ colors, selectedColor, onColorSelect }: {
       <div className="flex flex-wrap gap-3">
         {colors.map((color) => (
           <div key={color} className="flex flex-col items-center gap-2">
-            <button
+            <Button
               onClick={() => onColorSelect(color)}
               className={`
-                w-12 h-12 rounded-full border-2 transition-all duration-200 flex items-center justify-center
                 ${selectedColor === color
-                  ? 'border-[#111111] scale-110'
-                  : 'border-gray-300 hover:scale-105'
-                }
+                  && 'text-primary ring-1'
+                 
+                } text-xs font-semibold
               `}
-              style={{ backgroundColor: getColorValue(color) }}
+              variant={'outline'}
               title={color}
             >
               {/* Show pattern or indicator for complex colors */}
-              {color.toLowerCase().includes('dial') && (
-                <div className="w-4 h-4 rounded-full bg-blue-500 border border-white"></div>
-              )}
-              {color.toLowerCase().includes('strip') && (
-                <div className="w-3 h-6 border-l-2 border-r-2 border-white"></div>
-              )}
-            </button>
-            <span className="text-xs text-[#666666] max-w-12 text-center leading-tight">
               {color}
-            </span>
+            </Button>
+          
           </div>
         ))}
       </div>
@@ -280,11 +272,7 @@ const ProductDetailsClient = ({ product }: { product: any }) => {
       </div>
 
       {/* Additional Info */}
-      <div className="mt-8 text-center">
-        <p className="text-xs text-[#666666] uppercase tracking-wider">
-          WATCHZ • PREMIUM • QUALITY
-        </p>
-      </div>
+     
     </div>
   );
 };
