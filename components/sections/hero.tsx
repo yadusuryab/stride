@@ -298,7 +298,7 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
       <section className={cn("w-full select-none p-4", className)} aria-label="Featured collection">
 
         {/* ── Main slide area ── */}
-        <div className="relative w-full h-[45vh] rounded-2xl  md:h-[90vh] overflow-hidden bg-neutral-950">
+        <div className="relative w-full h-[45vh] rounded-2xl  md:h-[70vh] overflow-hidden bg-neutral-950">
 
           {/* Slides rendered as stacked layers (cross-fade) */}
           {banners.map((banner, index) => {
@@ -321,17 +321,17 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
           })}
 
           {/* Gradient overlays */}
-          <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/75 via-black/10 to-black/20 pointer-events-none" />
-          <div className="absolute inset-0 z-10 bg-gradient-to-r from-black/30 to-transparent pointer-events-none" />
+          <div className="absolute hidden md:visible inset-0 z-10 bg-gradient-to-t from-black/75 via-black/10 to-black/20 pointer-events-none" />
+          <div className="absolute hidden md:visible inset-0 z-10 bg-gradient-to-r from-black/30 to-transparent pointer-events-none" />
 
           {/* ── Slide number — bleeds at edge ── */}
-          <div className="absolute top-8 right-0 z-20 overflow-hidden pr-6 md:pr-10">
+          {/* <div className="absolute top-8 right-0 z-20 overflow-hidden pr-6 md:pr-10">
             <div className="flex items-baseline gap-1 font-mono text-white/30">
               <AnimatedNumber value={selectedIndex} />
               <span className="text-[10px] mx-1 text-white/15">—</span>
               <span className="text-[11px]">{String(banners.length).padStart(2, '0')}</span>
             </div>
-          </div>
+          </div> */}
 
           {/* ── Vertical progress track ── */}
           {banners.length > 1 && (

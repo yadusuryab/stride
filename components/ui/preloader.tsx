@@ -83,11 +83,15 @@ export function Preloader() {
         .pl-dot:nth-child(1) { animation-delay: 0s; }
         .pl-dot:nth-child(2) { animation-delay: 0.2s; }
         .pl-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes pl-shimmer {
+  0%   { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+}
       `}</style>
 
       <div
         aria-hidden="true"
-        className="bg-primary"
+        className="bg-secondary"
         style={{
           position: "fixed", inset: 0, zIndex: 9999,
           display: "flex", alignItems: "center", justifyContent: "center",
@@ -105,21 +109,24 @@ export function Preloader() {
             transition: "transform 600ms ease, opacity 600ms ease",
           }}
         >
-          <Image alt="Stride" src="/stlbc.png" height={50} width={100} />
-
-          {/* Infinite Progress Bar */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-            <div className="pl-progress-container">
-              <div className="pl-progress-bar" />
-            </div>
-            
-            {/* Animated dots instead of percentage */}
-            <div className="pl-dots">
-              <div className="pl-dot" />
-              <div className="pl-dot" />
-              <div className="pl-dot" />
-            </div>
-          </div>
+{/* Logo with shimmer */}
+<div style={{ position: 'relative', width: 100, height: 50 }}>
+  <Image alt="Stride" src="/logo.png" height={50} width={100} />
+  <div style={{
+    position: 'absolute', inset: 0,
+    WebkitMaskImage: 'url(/logo.png)',
+    WebkitMaskSize: '100px 50px',
+    WebkitMaskRepeat: 'no-repeat',
+    maskImage: 'url(/logo.png)',
+    maskSize: '100px 50px',
+    maskRepeat: 'no-repeat',
+    background: 'linear-gradient(105deg, transparent 25%, rgba(255,255,255,0.9) 50%, transparent 75%)',
+    backgroundSize: '200% 100%',
+    backgroundPosition: '-100% 0',
+    animation: 'pl-shimmer 2s ease-in-out infinite',
+  }} />
+</div>
+         
         </div>
       </div>
     </>

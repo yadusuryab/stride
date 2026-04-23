@@ -240,6 +240,7 @@ const AddToCartButton = ({
         ) : inCart ? (
           <Button
             variant={"outline"}
+            size={'lg'}
             onClick={() => router.push("/cart")}
           >
             <Check size={16} strokeWidth={2} className="check-icon" />
@@ -249,6 +250,7 @@ const AddToCartButton = ({
           <Button
             variant={"secondary"}
                   className="w-full"
+                  size={'lg'}
             onClick={() => addToCart(false)}
             disabled={isLoading || disabled}
           >
@@ -266,6 +268,7 @@ const AddToCartButton = ({
           <Button
             onClick={handleBuyNow}
             className="w-full"
+            size={'lg'}
             disabled={isBuyNowLoading || disabled || isOutOfStock}
           >
             {isBuyNowLoading && <Loader2 size={16} className="animate-spin" />}

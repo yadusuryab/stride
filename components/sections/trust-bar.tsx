@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { RotateCcw, ShieldCheck, Headphones, Verified } from "lucide-react";
+import { RotateCcw, ShieldCheck, Headphones, Verified, Truck } from "lucide-react";
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -23,7 +23,7 @@ const badges = [
   { icon: Verified,    title: "Premium Products", desc: "Quality products at affordable price.",        tag: "01" },
   { icon: RotateCcw,   title: "Easy Returns",     desc: "Hassle-free returns for defective items.",    tag: "02" },
   { icon: ShieldCheck, title: "Secure Checkout",  desc: "100% protected payments, always.",            tag: "03" },
-  { icon: Headphones,  title: "24h Support",      desc: "We're here whenever you need us.",            tag: "04" },
+  { icon: Truck,  title: "All India Delivery",      desc: "Doorstep delivery for you.",            tag: "04" },
 ];
 
 export default function TrustBar() {
@@ -65,7 +65,7 @@ export default function TrustBar() {
               return (
                 <div
                   key={i}
-                  className={`trust-item ${visible ? "in" : ""} bg-secondary relative flex flex-col gap-3.5 p-6 md:p-7 cursor-default transition-colors duration-300  ${isHov ? "bg-orange-500/5" : "bg-transparent"}`}
+                  className={`trust-item ${visible ? "in" : ""} bg-white relative flex flex-col gap-3.5 p-6 md:p-7 cursor-default transition-colors duration-300  `}
                   style={{ animationDelay: `${i * 90}ms` }}
                   onMouseEnter={() => setHovered(i)}
                   onMouseLeave={() => setHovered(null)}
@@ -80,17 +80,13 @@ export default function TrustBar() {
 
                   {/* Icon box */}
                   <div
-                    className={`w-10 h-10 rounded-sm flex items-center justify-center border transition-all duration-300 ${
-                      isHov
-                        ? "border-orange-500/60 bg-orange-500/10"
-                        : "border-neutral-700 bg-transparent"
-                    }`}
+                    className={`w-10 h-10 rounded-sm flex items-center justify-center border transition-all duration-300`}
                     style={{ transition: "transform 0.35s cubic-bezier(0.34,1.56,0.64,1), border-color 0.3s, background 0.3s", transform: isHov ? "scale(1.1) rotate(-4deg)" : "scale(1)" }}
                   >
                     <Icon
                       size={15}
                       strokeWidth={2}
-                      className={`transition-colors duration-300 ${isHov ? "text-orange-400" : "text-neutral-500"}`}
+                      className={`transition-colors duration-300`}
                     />
                   </div>
 

@@ -133,7 +133,7 @@ function StickySearchBar({
       {/* Search input */}
       <motion.div
         animate={{ borderColor: focused ? "#0a0a0a" : "#e5e5e5" }}
-        className="flex items-center gap-2 px-3.5 py-2.5 rounded-2xl border-2 bg-neutral-50 transition-colors"
+        className="flex items-center gap-2 px-3.5 py-2.5 rounded-md border bg-neutral-50 transition-colors"
       >
         <Search className="w-4 h-4 text-neutral-400 shrink-0" />
         <input

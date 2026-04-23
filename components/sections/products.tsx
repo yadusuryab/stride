@@ -86,13 +86,13 @@ function ProductsSection({
       <div ref={sectionRef} style={{ position: "relative" }}>
 
         {/* ── Header bar ── */}
-        <div style={{ borderTop: "1px solid #1a1a1a", borderBottom: "1px solid #d4cbbf", padding: "0 28px", display: "flex", alignItems: "stretch", justifyContent: "space-between" }}>
-          <div style={{ padding: "20px 0", borderRight: "1px solid #d4cbbf", paddingRight: "32px", flex: "0 0 auto", display: "flex", flexDirection: "column", justifyContent: "center", gap: "4px" }}>
+        <div style={{  padding: "0 28px", display: "flex", alignItems: "stretch", justifyContent: "space-between" }} className="border-t border-b">
+          <div className="border-r"  style={{ padding: "20px 0", paddingRight: "32px", flex: "0 0 auto", display: "flex", flexDirection: "column", justifyContent: "center", gap: "4px" }}>
             <span style={{ fontFamily: '"DM Mono", monospace', fontSize: "9px", letterSpacing: "0.3em", textTransform: "uppercase", color: "#9c8a72" }}>
               {desc || "Products"}
             </span>
             <h2
-              className="tracking-tighter text-2xl font-bold"
+              className="tracking-tighter font-hd text-2xl font-bold"
               style={{ lineHeight: 0.95, margin: 0, opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(8px)", transition: "opacity 0.5s ease, transform 0.5s ease" }}
             >
               {title}
@@ -108,7 +108,7 @@ function ProductsSection({
         </div>
 
         {/* ── Product grid ── */}
-        <div className="prod-grid">
+        <div className="gap-2 gap-y-4 grid grid-cols-2 md:grid-cols-5 px-4 py-2">
           {loading ? (
             Array.from({ length: colCount * 2 }).map((_, i) => (
               <div key={i} style={{ background: "#f8f4ee", borderLeft: "1px solid #e5ddd3" }}>
@@ -125,10 +125,9 @@ function ProductsSection({
             products.map((prod, i) => (
               <div
                 key={prod._id}
-                className={`prod-item p-2 ${visible ? "revealed" : ""}`}
+                className={` ${visible ? "revealed" : ""}`}
                 style={{
-                  borderLeft: i % colCount !== 0 ? "1px solid #e5ddd3" : "none",
-                  borderBottom: "1px solid #e5ddd3",
+                
                   animationDelay: visible ? `${i * 60}ms` : "0ms",
                   position: "relative",
                 }}

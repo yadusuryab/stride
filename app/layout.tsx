@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Sans, DM_Mono, Cormorant_Garamond, Inter } from "next/font/google";
+import { DM_Sans, DM_Mono, Cormorant_Garamond, Inter, New_Rocker } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
@@ -9,10 +9,16 @@ import { ClientShell } from "@/components/layout/client-shell";
 
 // ─── Fonts ────────────────────────────────────────────────────────────────────
 
-const dmSans = Inter({
+const dmSans = DM_Sans({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
   variable: "--font-sans",
+  display: "swap",
+});
+const hd = New_Rocker({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-hd",
   display: "swap",
 });
 
@@ -78,6 +84,8 @@ export default function RootLayout({
           ${dmSans.variable}
           ${cormorant.variable}
           ${dmMono.variable}
+          ${hd.variable}
+
           font-sans antialiased
         `}
       >

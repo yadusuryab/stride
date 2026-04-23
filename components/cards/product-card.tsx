@@ -58,7 +58,7 @@ function ProductCard({
         transition={{ type: 'spring', stiffness: 380, damping: 28 }}
       >
         {/* ── Image container ── */}
-        <div className="relative w-full aspect-[3/4] rounded overflow-hidden bg-gray-50 mb-2.5">
+        <div className="relative w-full aspect-[3/4] rounded overflow-hidden  mb-2.5">
 
           {/* Image with Ken Burns */}
           <Image
@@ -111,9 +111,9 @@ function ProductCard({
               </span>
             )}
             {hasDiscount && (
-              <span className="text-[9px] font-semibold tracking-[0.1em] uppercase
-                bg-black/80 text-white px-2 py-0.5 rounded-sm">
-                -{discountPct}%
+              <span className=" font-semibold text-xs uppercase
+                bg-primary text-primary-foreground  px-2 py-0.5 rounded-sm">
+                {discountPct}% OFF
               </span>
             )}
           </div>
@@ -144,12 +144,13 @@ function ProductCard({
           <div className="flex items-center gap-1.5 mt-0.5">
             {hasDiscount ? (
               <>
-                <span className="text-xs font-semibold text-black">
-                  ₹{formatPrice(safeSalesPrice)}
-                </span>
-                <span className="text-[10px] text-black/35 line-through font-normal">
+               <span className="text-md text-black/35 line-through font-semibold">
                   ₹{formatPrice(safePrice)}
                 </span>
+                <span className="text-md font-bold text-black">
+                  ₹{formatPrice(safeSalesPrice)}
+                </span>
+               
               </>
             ) : (
               <span className="text-xs font-semibold text-black">

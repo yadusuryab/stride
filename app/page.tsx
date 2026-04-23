@@ -15,7 +15,7 @@ export default async function Home() {
   ]);
 
   return (
-    <div className="flex pt-10 flex-col md:max-w-[1200px] md:mx-auto">
+    <div className="flex  flex-col md:max-w-[1200px] md:mx-auto">
 
       {/* 1 ── Hero carousel */}
       <Hero />

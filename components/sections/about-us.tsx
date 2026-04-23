@@ -36,7 +36,7 @@ const instagramAccounts = [
 const services = [
   {
     icon: ShieldCheck,
-    title: "Premium First-Copy",
+    title: "Premium High Quality Watches",
     description:
       "Hand-picked watches that look like the originals — clean finishes, solid feel, high value for the price.",
   },
@@ -150,7 +150,7 @@ export default function AboutUsSection() {
           <motion.h2
             variants={fadeUp}
             custom={0.1}
-            className="text-3xl md:text-4xl font-bold tracking-tight mb-4"
+            className="text-3xl md:text-4xl font-hd tracking-tight mb-4"
           >
             About{" "}
             <span className="text-primary">stride.</span>
@@ -169,19 +169,16 @@ export default function AboutUsSection() {
             />
           </motion.div>
         </motion.div>
-
         <motion.p
-          className="text-center max-w-2xl mx-auto mb-16 text-muted-foreground leading-relaxed"
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          variants={fadeUp}
-          custom={0.3}
-        >
-          We're Stride, a Kannur, Kerala-based watch store trusted for  years, offering
-          premium first-copy brands like Rolex, Omega & Casio at everyday prices
-          with all-India Delivery.
-        </motion.p>
-
+  className="text-center max-w-xl mx-auto text-sm md:text-base font-semibold mb-12 text-muted-foreground leading-tight px-4"
+  initial="hidden"
+  animate={isInView ? "visible" : "hidden"}
+  variants={fadeUp}
+  custom={0.3}
+>
+  We're Stride, a premium fashion store based in Kannur, Kerala, trusted for years.
+  We offer high-quality watches and fashion accessories inspired by Rolex, Omega, and Casio—at everyday prices with all-India delivery.
+</motion.p>
         {/* ── 3-col layout ── */}
         <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-10 items-center">
 
@@ -240,15 +237,14 @@ export default function AboutUsSection() {
   {instagramAccounts.map((acc) => (
   <Link key={acc.id} href={`https://instagram.com/${acc.id}`} target="_blank">
   <Button
-    className="w-full md:min-w-[400px] min-w-[300px] rounded-full ring-1 ring-border bg-primary/10 justify-between px-4"
+    className="w-full md:min-w-[400px]  rounded-full flex  justify-between"
     variant="secondary"
+    size={'lg'}
   >
-    <span className="flex items-center gap-2">
       <IconBrandInstagram className="w-4 h-4 text-primary shrink-0" />
       <span className="font-medium">{acc.label}</span>
-    </span>
-    <Badge  className="rounded-full  font-normal gap-1">
-      @{acc.id} <ArrowRight className="w-3 h-3" />
+    <Badge  className="rounded-full  font-normal">
+      @{acc.id} 
     </Badge>
   </Button>
 </Link>
@@ -264,7 +260,7 @@ export default function AboutUsSection() {
         {/* ── Stats ── */}
         <motion.div
           ref={statsRef}
-          className="mt-24 flex flex-wrap justify-center sm:grid-cols-3 gap-1"
+          className="mt-24 flex flex-wrap justify-center sm:grid-cols-3 gap-3"
           initial="hidden"
           animate={isStatsView ? "visible" : "hidden"}
           variants={stagger}
@@ -276,13 +272,13 @@ export default function AboutUsSection() {
 
         {/* ── CTA banner ── */}
         <motion.div
-          className="mt-16 rounded-2xl bg-secondary/60 border border-border/50 backdrop-blur-sm p-8 flex flex-col sm:flex-row items-center justify-between gap-6"
+          className="mt-16 rounded-2xl bg-secondary text-secondary-foreground border border-border/50 backdrop-blur-sm p-8 flex flex-col sm:flex-row items-center justify-between gap-6"
           initial={{ opacity: 0, y: 32 }}
           animate={isStatsView ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
           transition={{ duration: 0.7, delay: 0.45, ease: [0.4, 0, 0.2, 1] }}
         >
           <div>
-            <h3 className="text-xl font-semibold mb-1">Want to talk to us?</h3>
+            <h3 className="text-xl font-hd mb-1">Want to talk to us?</h3>
             <p className="text-sm text-muted-foreground">Let's chat on WhatsApp — we reply fast.</p>
           </div>
           <Link
@@ -376,19 +372,19 @@ function StatCard({
   return (
     <motion.div
       ref={ref}
-      className="group relative flex flex-col items-center min-w-38 text-center p-4 rounded-2xl bg-primary/10 border  transition-all duration-300"
+      className="group relative flex flex-col items-center min-w-38 text-center p-4 rounded-2xl  transition-all duration-300"
       variants={fadeUp}
       custom={delay}
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
     >
       <motion.div
-        className="w-12 h-12 rounded-full bg-primary/8 flex items-center justify-center mb-4 text-primary group-hover:bg-primary/15 transition-colors duration-300"
+        className="w-12 h-12 rounded-full  flex items-center justify-center mb-4 text-primary group-hover:bg-primary/15 transition-colors duration-300"
         whileHover={{ rotate: 360, transition: { duration: 0.7 } }}
       >
         <Icon size={20} strokeWidth={1.8} />
       </motion.div>
 
-      <div className="text-3xl font-bold tabular-nums">
+      <div className="text-3xl font-hd tabular-nums">
         {display.toLocaleString()}
         <span className="text-primary">{suffix}</span>
       </div>

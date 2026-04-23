@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
-import { ArrowRight, Zap } from 'lucide-react'
+import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '../ui/button'
 
@@ -12,10 +12,9 @@ export type Category = {
   productCount?: number
 }
 
-// ── Skeleton ──────────────────────────────────────────────────────────────────
-function SkeletonCard({ tall }: { tall?: boolean }) {
+function SkeletonCard() {
   return (
-    <div className={`relative w-full overflow-hidden bg-neutral-100 ${tall ? 'h-[480px]' : 'h-[280px]'}`}>
+    <div className="flex-shrink-0 w-[200px] h-[280px] bg-neutral-100 relative overflow-hidden rounded-none">
       <div
         className="absolute inset-0 -translate-x-full"
         style={{
@@ -27,117 +26,104 @@ function SkeletonCard({ tall }: { tall?: boolean }) {
   )
 }
 
-// ── Category Row ──────────────────────────────────────────────────────────────
-function CategoryRow({
+function CategoryCard({
   cat,
   index,
   visible,
-  tall,
 }: {
   cat: Category
   index: number
   visible: boolean
-  tall?: boolean
 }) {
   const [hovered, setHovered] = useState(false)
 
   return (
-    <a
+    <Link
       href={`/products?category=${cat.slug}`}
-      className="block group relative overflow-hidden"
-      style={{ textDecoration: 'none' }}
+      className="flex-shrink-0 relative overflow-hidden block"
+      style={{
+        width: '200px',
+        height: '300px',
+        textDecoration: 'none',
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(20px)',
+        transition: `opacity 0.5s ease ${index * 80}ms, transform 0.5s ease ${index * 80}ms`,
+      }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
+      {/* Image */}
       <div
-        className="relative w-full overflow-hidden"
+        className="absolute inset-0 bg-cover bg-center"
         style={{
-          height: tall ? '260px' : '200px',
-          opacity: visible ? 1 : 0,
-          transform: visible ? 'translateY(0)' : 'translateY(28px)',
-          transition: `opacity 0.6s ease ${index * 100}ms, transform 0.6s ease ${index * 100}ms`,
+          backgroundImage: `url(${cat.image})`,
+          transform: hovered ? 'scale(1.07)' : 'scale(1)',
+          transition: 'transform 0.9s cubic-bezier(0.25,0.46,0.45,0.94)',
         }}
+      />
+
+      {/* Gradient overlay */}
+      <div
+        className="absolute inset-0 transition-all duration-500"
+        style={{
+          background: hovered
+            ? 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.05) 100%)'
+            : 'linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.2) 55%, rgba(0,0,0,0.0) 100%)',
+        }}
+      />
+
+      {/* Orange bottom line on hover */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary transition-all duration-300"
+        style={{ transform: hovered ? 'scaleX(1)' : 'scaleX(0)', transformOrigin: 'left' }}
+      />
+
+      {/* Index — top left */}
+      <span
+        className="absolute top-4 left-4 text-[9px] font-black tracking-[0.3em] text-white/60"
       >
-        {/* Background image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center"
+        {String(index + 1).padStart(2, '0')}
+      </span>
+
+      {/* Arrow icon top right */}
+      <div
+        className="absolute top-4 right-4 transition-all duration-300"
+        style={{ opacity: hovered ? 1 : 0, transform: hovered ? 'translate(0,0)' : 'translate(4px,-4px)' }}
+      >
+        <ArrowUpRight size={14} className="text-primary" strokeWidth={2.5} />
+      </div>
+
+      {/* Bottom content */}
+      <div className="absolute bottom-0 left-0 right-0 p-4">
+        <h3
+          className="text-white font-black leading-none tracking-tighter m-0 transition-transform duration-300"
           style={{
-            backgroundImage: `url(${cat.image})`,
-            transform: hovered ? 'scale(1.05)' : 'scale(1)',
-            transition: 'transform 0.8s cubic-bezier(0.25,0.46,0.45,0.94)',
+            fontSize: '26px',
+            transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
           }}
-        />
-
-        {/* Dark gradient */}
-        <div
-          className="absolute inset-0 transition-all duration-500"
-          style={{
-            background: hovered
-              ? 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.10) 100%)'
-              : 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.30) 55%, rgba(0,0,0,0.05) 100%)',
-          }}
-        />
-
-        {/* Orange left accent bar */}
-        {/* <div
-          className="absolute left-0 top-0 bottom-0 w-[3px] bg-orange-500 transition-opacity duration-300"
-          style={{ opacity: hovered ? 1 : 0 }}
-        /> */}
-
-        {/* Index — top left */}
-        <div
-          className="absolute top-5 left-5 font-black text-[10px] tracking-[0.3em] text-white transition-opacity duration-300"
-          style={{ opacity: visible ? 1 : 0, transitionDelay: `${index * 100 + 200}ms` }}
         >
-          {String(index + 1).padStart(2, '0')}
-        </div>
-
-        {/* Bottom text */}
-        <div className="absolute bottom-0 left-0 right-0 p-6">
-          <h3
-            className=" text-white leading-none tracking-tighter m-0 transition-transform duration-400"
-            style={{
-              fontSize: tall ? '52px' : '32px',
-              transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
-            }}
-          >
-            {cat.name}
-          </h3>
-
-          <div
-            className="flex items-center justify-between mt-3 transition-all duration-300"
-            style={{
-              opacity: hovered ? 1 : 0.5,
-              transform: hovered ? 'translateY(0)' : 'translateY(4px)',
-            }}
-          >
-            <span className="text-[9px] font-black tracking-[0.35em] uppercase text-muted-foreground">
-              {cat.productCount != null ? `${cat.productCount} pieces` : 'Explore'}
-            </span>
-
-            <div
-              className="w-8 h-8 rounded-sm flex items-center justify-center border transition-all duration-300"
-              style={{
-                borderColor: hovered ? 'rgba(249,115,22,0.6)' : 'rgba(255,255,255,0.2)',
-                background: hovered ? 'rgba(249,115,22,0.15)' : 'transparent',
-              }}
-            >
-              <ArrowRight size={13} className="text-orange-400" strokeWidth={2.5} />
-            </div>
-          </div>
+          {cat.name}
+        </h3>
+        <div
+          className="mt-2 transition-all duration-300"
+          style={{ opacity: hovered ? 1 : 0.4, transform: hovered ? 'translateY(0)' : 'translateY(4px)' }}
+        >
+          <span className="text-[8px] font-black tracking-[0.35em] uppercase text-muted">
+            {cat.productCount != null ? `${cat.productCount} pieces` : 'Explore'}
+          </span>
         </div>
       </div>
-    </a>
+    </Link>
   )
 }
 
-// ── CategorySection ───────────────────────────────────────────────────────────
 function CategorySection() {
   const [categories, setCategories] = useState<Category[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [visible, setVisible] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -175,90 +161,85 @@ function CategorySection() {
     return () => obs.disconnect()
   }, [])
 
-  const [hero, ...rest] = categories
-
   return (
     <>
-      <style>{`@keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(250%)} }`}</style>
+      <style>{`
+        @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(250%)} }
+        .cat-scroll::-webkit-scrollbar { display: none; }
+        .cat-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
 
-      <section ref={sectionRef} className="bg-white py-16 relative">
+      <section ref={sectionRef} className="py-6 relative">
 
-        {/* Orange top border */}
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-primary" />
-
-        {/* ── Header ───────────────────────────────────────────────────── */}
-        <div className="px-6 mb-8 flex items-end justify-between">
+        {/* Header */}
+        <div className="px-6 mb-5 flex items-end justify-between">
           <div>
-            {/* Eyebrow */}
-            <div
-              className="flex items-center gap-2 mb-3 transition-all duration-500"
-              style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(8px)' }}
+            {/* Eyebrow label */}
+            <p
+              className="text-xs tracking-wider font-semibold  uppercase text-primary m-0 mb-1 transition-all duration-500"
+              style={{ opacity: visible ? 1 : 0, transitionDelay: '50ms' }}
             >
-              <span className="text-sm tracking-tighter uppercase text-primary">
-                Find by
-              </span>
-              <div className="h-px w-8 bg-primary" />
-            </div>
-
-            {/* Headline */}
+              Shop
+            </p>
             <h2
-              className=" leading-none tracking-tighter m-0 transition-all duration-500"
+              className="leading-none font-hd tracking-tighter m-0 transition-all duration-500"
               style={{
-                fontSize: 'clamp(32px, 6vw, 48px)',
+                fontSize: 'clamp(28px, 6vw, 44px)',
                 opacity: visible ? 1 : 0,
-                transform: visible ? 'translateY(0)' : 'translateY(12px)',
+                transform: visible ? 'translateY(0)' : 'translateY(10px)',
                 transitionDelay: '70ms',
               }}
             >
-            Category
+               Essentials
             </h2>
           </div>
 
-          {/* View all */}
-          <Link
-            href="/products"
-          >
-           <Button> View All
-            <ArrowRight size={12} className="transition-transform duration-200 group-hover:translate-x-0.5" strokeWidth={2.5} />
-          </Button></Link>
+          <Link href="/products">
+            <Button>
+              View All
+              <ArrowRight size={12} strokeWidth={2.5} />
+            </Button>
+          </Link>
         </div>
 
-        {/* ── Grid ─────────────────────────────────────────────────────── */}
+        {/* Horizontal scroll strip */}
         {isLoading ? (
-          <div className="px-6 flex flex-col gap-[3px]">
-            <SkeletonCard tall />
-            <div className="grid grid-cols-2 gap-[3px]">
-              <SkeletonCard />
-              <SkeletonCard />
-            </div>
+          <div className="flex gap-[3px] px-6 overflow-hidden">
+            {[0, 1, 2, 3].map(i => <SkeletonCard key={i} />)}
           </div>
         ) : categories.length === 0 ? (
-          <p className="text-neutral-400 text-center py-12 text-[12px] font-black tracking-widest uppercase">
+          <p className="text-muted-foreground text-center py-12 text-[11px] font-black tracking-widest uppercase">
             No collections found
           </p>
         ) : (
-          <div className="flex flex-col gap-[3px] px-6">
-            {hero && <CategoryRow cat={hero} index={0} visible={visible} tall />}
-            {rest.length > 0 && (
-              <div
-                className="grid gap-[3px]"
-                style={{ gridTemplateColumns: rest.length === 1 ? '1fr' : '1fr 1fr' }}
-              >
-                {rest.map((cat, i) => (
-                  <CategoryRow key={cat.slug} cat={cat} index={i + 1} visible={visible} />
-                ))}
-              </div>
-            )}
+          <div
+            ref={scrollRef}
+            className="cat-scroll flex gap-[3px] overflow-x-auto px-6"
+            style={{ paddingRight: '24px' }}
+          >
+            {categories.map((cat, i) => (
+              <CategoryCard key={cat.slug} cat={cat} index={i} visible={visible} />
+            ))}
+
+            {/* "See all" terminal card */}
+            <Link
+              href="/products"
+              className="flex-shrink-0 flex flex-col items-center justify-center border border hover:border-primary transition-colors duration-300"
+              style={{ width: '80px', height: '300px', textDecoration: 'none' }}
+            >
+              <ArrowRight size={16} className="text-primary mb-2" strokeWidth={2} />
+              <span className="text-[7px] font-black tracking-[0.3em] uppercase text-neutral-400 rotate-90 whitespace-nowrap mt-3">
+                All
+              </span>
+            </Link>
           </div>
         )}
 
         {/* Bottom border */}
-        <div className="absolute bottom-0 left-6 right-6 h-px bg-neutral-200" />
 
-        {/* Dev error */}
         {error && process.env.NODE_ENV === 'development' && (
-          <div className="mx-6 mt-4 px-4 py-3 bg-orange-50 border border-orange-200 rounded-sm">
-            <p className="text-orange-600 text-[11px] m-0 font-black tracking-wider">
+          <div className="mx-6 mt-4 px-4 py-3 bg-orange-50 border border-orange-200">
+            <p className="text-primary text-[11px] m-0 font-black tracking-wider">
               Fallback data: {error}
             </p>
           </div>

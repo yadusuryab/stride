@@ -12,7 +12,7 @@ export default function Brand({ className }: any) {
     <div className={`${className} `}>
       {/* Vertical accent bar */}
 
-     <Image alt="Stride" src="/wordmark.png" height={50} width={80}/>
+     <Image alt="Stride" src="/wm-3.png" height={50} width={100}/>
     </div>
   );
 }
