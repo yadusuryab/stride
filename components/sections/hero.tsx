@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { cn } from "@/lib/utils";
-import useEmblaCarousel from "embla-carousel-react";
 import { Play, Pause, Volume2, VolumeX, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -58,7 +58,8 @@ const SlideMedia: React.FC<{
   media: ReturnType<typeof convertBannerToMediaItem>;
   isActive: boolean;
   priority?: boolean;
-}> = ({ media, isActive, priority }) => {
+  onVideoInteract?: () => void;
+}> = ({ media, isActive, priority, onVideoInteract }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(true);
@@ -109,10 +110,9 @@ const SlideMedia: React.FC<{
             playsInline
             onEnded={() => setPlaying(false)}
           />
-          {/* Video controls */}
           {!playing && (
             <button
-              onClick={() => setPlaying(true)}
+              onClick={(e) => { e.stopPropagation(); setPlaying(true); onVideoInteract?.(); }}
               className="absolute inset-0 z-10 flex items-center justify-center group"
               aria-label="Play video"
             >
@@ -127,7 +127,7 @@ const SlideMedia: React.FC<{
           {playing && (
             <div className="absolute bottom-5 right-5 z-20 flex gap-2">
               <button
-                onClick={() => { if (videoRef.current) { videoRef.current.muted = !muted; setMuted(m => !m); } }}
+                onClick={(e) => { e.stopPropagation(); if (videoRef.current) { videoRef.current.muted = !muted; setMuted(m => !m); } }}
                 aria-label={muted ? 'Unmute' : 'Mute'}
                 className="w-8 h-8 rounded-full bg-black/30 backdrop-blur-sm border border-white/15
                   flex items-center justify-center text-white
@@ -136,7 +136,7 @@ const SlideMedia: React.FC<{
                 {muted ? <VolumeX size={13} /> : <Volume2 size={13} />}
               </button>
               <button
-                onClick={() => setPlaying(false)}
+                onClick={(e) => { e.stopPropagation(); setPlaying(false); }}
                 aria-label="Pause"
                 className="w-8 h-8 rounded-full bg-black/30 backdrop-blur-sm border border-white/15
                   flex items-center justify-center text-white
@@ -184,12 +184,16 @@ const AnimatedNumber: React.FC<{ value: number }> = ({ value }) => {
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 
 const Hero: React.FC<{ className?: string }> = ({ className }) => {
+  const router = useRouter();
   const [banners, setBanners] = useState<BannerItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [textVisible, setTextVisible] = useState(true);
   const autoSlideRef = useRef<NodeJS.Timeout | null>(null);
   const [progressKey, setProgressKey] = useState(0);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  // Track pointer down position to distinguish click vs drag
+  const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -216,32 +220,22 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
     return () => { if (autoSlideRef.current) clearInterval(autoSlideRef.current); };
   }, [banners.length, startAutoSlide]);
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({ align: 'center', loop: false, duration: 30 });
-
   const goTo = useCallback((index: number) => {
     setTextVisible(false);
     setTimeout(() => {
       setSelectedIndex(index);
       setProgressKey(k => k + 1);
-      emblaApi?.scrollTo(index);
       setTextVisible(true);
     }, 250);
     startAutoSlide(banners.length);
-  }, [emblaApi, banners.length, startAutoSlide]);
+  }, [banners.length, startAutoSlide]);
 
-  useEffect(() => {
-    if (!emblaApi) return;
-    const onSelect = () => {
-      const i = emblaApi.selectedScrollSnap();
-      if (i !== selectedIndex) {
-        setTextVisible(false);
-        setTimeout(() => { setSelectedIndex(i); setTextVisible(true); }, 250);
-        setProgressKey(k => k + 1);
-      }
-    };
-    emblaApi.on('select', onSelect);
-    return () => { emblaApi.off('select', onSelect); };
-  }, [emblaApi, selectedIndex]);
+  const handleSlideClick = useCallback(() => {
+    if (isVideoPlaying) return;
+    const current = banners[selectedIndex];
+    const href = current?.buttonLink || current?.ctaLink;
+    if (href) router.push(href);
+  }, [banners, selectedIndex, router, isVideoPlaying]);
 
   // Skeleton
   if (loading) {
@@ -279,6 +273,7 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
   const current = banners[selectedIndex];
   const ctaHref = current?.buttonLink || current?.ctaLink;
   const ctaLabel = current?.buttonText || current?.ctaText;
+  const hasCta = !!(ctaHref && ctaLabel);
 
   return (
     <>
@@ -298,7 +293,26 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
       <section className={cn("w-full select-none p-4", className)} aria-label="Featured collection">
 
         {/* ── Main slide area ── */}
-        <div className="relative w-full h-[45vh] rounded-2xl  md:h-[70vh] overflow-hidden bg-neutral-950">
+        <div
+          className={cn(
+            "relative w-full h-[45vh] rounded-3xl md:h-[75vh] overflow-hidden bg-neutral-950",
+            "ring-1 ring-white/5",
+            hasCta && !isVideoPlaying && "cursor-pointer"
+          )}
+          onPointerDown={(e) => { pointerDownPos.current = { x: e.clientX, y: e.clientY }; }}
+          onPointerUp={(e) => {
+            if (!pointerDownPos.current) return;
+            const dx = Math.abs(e.clientX - pointerDownPos.current.x);
+            const dy = Math.abs(e.clientY - pointerDownPos.current.y);
+            pointerDownPos.current = null;
+            // Only treat as click if pointer barely moved (not a drag/swipe)
+            if (dx < 6 && dy < 6) handleSlideClick();
+          }}
+          role={hasCta ? "button" : undefined}
+          tabIndex={hasCta ? 0 : undefined}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleSlideClick(); }}
+          aria-label={hasCta ? `Go to ${ctaLabel}` : undefined}
+        >
 
           {/* Slides rendered as stacked layers (cross-fade) */}
           {banners.map((banner, index) => {
@@ -307,7 +321,7 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
             return (
               <div
                 key={banner._id || index}
-                className="absolute inset-0 "
+                className="absolute inset-0"
                 style={{
                   opacity: isActive ? 1 : 0,
                   transition: 'opacity 900ms cubic-bezier(0.4, 0, 0.2, 1)',
@@ -315,24 +329,22 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
                 }}
                 aria-hidden={!isActive}
               >
-                <SlideMedia media={media} isActive={isActive} priority={index === 0} />
+                <SlideMedia
+                  media={media}
+                  isActive={isActive}
+                  priority={index === 0}
+                  onVideoInteract={() => setIsVideoPlaying(true)}
+                />
               </div>
             );
           })}
 
-          {/* Gradient overlays */}
-          <div className="absolute hidden md:visible inset-0 z-10 bg-gradient-to-t from-black/75 via-black/10 to-black/20 pointer-events-none" />
-          <div className="absolute hidden md:visible inset-0 z-10 bg-gradient-to-r from-black/30 to-transparent pointer-events-none" />
+         <div className="md:visible hidden">
+           {/* Gradient overlays */}
+           <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/80 via-black/15 to-black/20 pointer-events-none" />
+          <div className="absolute  inset-0 z-10 bg-gradient-to-r from-black/30 to-transparent pointer-events-none" />
 
-          {/* ── Slide number — bleeds at edge ── */}
-          {/* <div className="absolute top-8 right-0 z-20 overflow-hidden pr-6 md:pr-10">
-            <div className="flex items-baseline gap-1 font-mono text-white/30">
-              <AnimatedNumber value={selectedIndex} />
-              <span className="text-[10px] mx-1 text-white/15">—</span>
-              <span className="text-[11px]">{String(banners.length).padStart(2, '0')}</span>
-            </div>
-          </div> */}
-
+         </div>
           {/* ── Vertical progress track ── */}
           {banners.length > 1 && (
             <div className="absolute right-6 md:right-10 top-1/2 -translate-y-1/2 z-20
@@ -340,7 +352,7 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
               {banners.map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => goTo(i)}
+                  onClick={(e) => { e.stopPropagation(); goTo(i); }}
                   aria-label={`Go to slide ${i + 1}`}
                   className="group relative flex items-center justify-center"
                 >
@@ -352,7 +364,6 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
                       background: selectedIndex === i ? 'white' : 'rgba(255,255,255,0.25)',
                     }}
                   >
-                    {/* Animated fill for active */}
                     {selectedIndex === i && (
                       <div
                         key={progressKey}
@@ -370,8 +381,8 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
           )}
 
           {/* ── Desktop text block ── */}
-          <div className="hidden md:flex absolute inset-0 z-20 items-end p-10 lg:p-16">
-            <div className="max-w-xl">
+          <div className="hidden md:flex absolute inset-0 z-20 items-end p-10 lg:p-16 pointer-events-none">
+            <div className="max-w-xl pointer-events-auto">
 
               {/* Category tag */}
               <div
@@ -390,7 +401,7 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
               {current?.title && (
                 <h1
                   key={`title-${selectedIndex}`}
-                  className="text-2xl lg:text-[4.5rem] font-bold t text-white leading-[0.92] tracking-tight mb-5"
+                  className="text-4xl lg:text-[5rem] font-black text-white leading-[0.88] tracking-tighter mb-5"
                   style={{ animation: textVisible ? 'fadeSlideUp 0.65s cubic-bezier(0.16,1,0.3,1) 0.12s both' : 'none', opacity: textVisible ? 1 : 0 }}
                 >
                   {current.title}
@@ -416,6 +427,7 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
                 >
                   <Link
                     href={ctaHref}
+                    onClick={(e) => e.stopPropagation()}
                     className="group inline-flex items-center gap-2.5
                       text-sm font-medium text-white
                       border-b border-white/25 pb-0.5
@@ -430,14 +442,14 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
             </div>
           </div>
 
-          {/* ── Swipe hint — mobile only ── */}
+          {/* ── Mobile dot indicators ── */}
           {banners.length > 1 && (
-            <div className="md:hidden absolute backdrop-blur-xl p-1  rounded-full bottom-5 left-1/2 -translate-x-1/2 z-20">
+            <div className="md:hidden absolute backdrop-blur-xl p-1 rounded-full bottom-5 left-1/2 -translate-x-1/2 z-20">
               <div className="flex gap-1.5">
                 {banners.map((_, i) => (
                   <button
                     key={i}
-                    onClick={() => goTo(i)}
+                    onClick={(e) => { e.stopPropagation(); goTo(i); }}
                     aria-label={`Slide ${i + 1}`}
                     className="rounded-full transition-all duration-400"
                     style={{
@@ -453,64 +465,64 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
         </div>
 
         {/* ── Mobile text panel — below image ── */}
-        <div className="md:hidden bg-white  p-2 ">
+        <div className="md:hidden bg-neutral-950 rounded-2xl mt-2 p-3">
 
-         <div className="flex justify-between">
-         <div>
-          {current?.title && (
-            <h2
-              key={`m-title-${selectedIndex}`}
-              className="text-xl font-bold  tracking-tighter"
-              style={{ animation: 'fadeSlideUp 0.55s cubic-bezier(0.16,1,0.3,1) both' }}
-            >
-              {current.title}
-            </h2>
-          )}
+          <div className="flex justify-between items-start">
+            <div>
+              {current?.title && (
+                <h2
+                  key={`m-title-${selectedIndex}`}
+                  className="text-xl font-black tracking-tighter text-white"
+                  style={{ animation: 'fadeSlideUp 0.55s cubic-bezier(0.16,1,0.3,1) both' }}
+                >
+                  {current.title}
+                </h2>
+              )}
 
-          {current?.subtitle && (
-            <p
-              key={`m-sub-${selectedIndex}`}
-              className="text-sm text-muted-foreground leading-relaxed font-semibold"
-              style={{ animation: 'fadeSlideUp 0.55s cubic-bezier(0.16,1,0.3,1) 0.1s both' }}
-            >
-              {current.subtitle}
-            </p>
-          )}
-          </div>
-
-          {ctaLabel && ctaHref && (
-            <div
-              key={`m-cta-${selectedIndex}`}
-              style={{ animation: 'fadeSlideUp 0.55s cubic-bezier(0.16,1,0.3,1) 0.18s both' }}
-            >
-              <Link
-                href={ctaHref}
-                className="inline-flex items-center gap-1.5 mt-4
-                  text-sm text-neutral-900 font-medium
-                  border-b border-neutral-200 pb-0.5
-                  hover:border-neutral-900 hover:gap-3
-                  transition-all duration-300"
-              >
-                {ctaLabel} <ArrowUpRight size={13} />
-              </Link>
+              {current?.subtitle && (
+                <p
+                  key={`m-sub-${selectedIndex}`}
+                  className="text-sm text-white/40 leading-relaxed font-light mt-0.5"
+                  style={{ animation: 'fadeSlideUp 0.55s cubic-bezier(0.16,1,0.3,1) 0.1s both' }}
+                >
+                  {current.subtitle}
+                </p>
+              )}
             </div>
-          )}
-         </div>
+
+            {ctaLabel && ctaHref && (
+              <div
+                key={`m-cta-${selectedIndex}`}
+                style={{ animation: 'fadeSlideUp 0.55s cubic-bezier(0.16,1,0.3,1) 0.18s both' }}
+              >
+                <Link
+                  href={ctaHref}
+                  className="inline-flex items-center gap-1.5 mt-1
+                    text-xs text-white font-medium
+                    border border-white/15 rounded-full px-3 py-1.5
+                    hover:bg-white hover:text-black
+                    transition-all duration-300"
+                >
+                  {ctaLabel} <ArrowUpRight size={11} />
+                </Link>
+              </div>
+            )}
+          </div>
 
           {/* Mobile bottom bar — slide nav */}
           {banners.length > 1 && (
-            <div className="flex items-center justify-between mt-1">
-              <span className="font-mono text-[11px] text-neutral-300 tracking-wider">
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5">
+              <span className="font-mono text-[11px] text-white/20 tracking-wider">
                 <AnimatedNumber value={selectedIndex} />
-                <span className="mx-1.5 text-neutral-200">·</span>
+                <span className="mx-1.5 text-white/10">·</span>
                 {String(banners.length).padStart(2, '0')}
               </span>
               <div className="flex gap-2">
                 <button
                   onClick={() => selectedIndex > 0 && goTo(selectedIndex - 1)}
                   disabled={selectedIndex === 0}
-                  className="w-8 h-8 rounded-full border border-neutral-150 flex items-center justify-center
-                    text-neutral-400 hover:text-neutral-900 hover:border-neutral-300
+                  className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center
+                    text-white/30 hover:text-white hover:border-white/30
                     disabled:opacity-20 disabled:pointer-events-none
                     transition-all duration-200 active:scale-95"
                   aria-label="Previous"
@@ -522,8 +534,8 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
                 <button
                   onClick={() => selectedIndex < banners.length - 1 && goTo(selectedIndex + 1)}
                   disabled={selectedIndex === banners.length - 1}
-                  className="w-8 h-8 rounded-full border border-neutral-150 flex items-center justify-center
-                    text-neutral-400 hover:text-neutral-900 hover:border-neutral-300
+                  className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center
+                    text-white/30 hover:text-white hover:border-white/30
                     disabled:opacity-20 disabled:pointer-events-none
                     transition-all duration-200 active:scale-95"
                   aria-label="Next"
