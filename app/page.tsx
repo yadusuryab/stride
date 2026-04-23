@@ -7,6 +7,7 @@ import TrustBar from "@/components/sections/trust-bar";
 import AboutTeaser from "@/components/sections/about-teaser";
 import { getHomeProducts, getTrendingProducts } from "@/lib/queries/product";
 import AboutUsSection from "@/components/sections/about-us";
+import { ProductCardWithSale } from "@/components/sections/sale-is-live";
 
 export default async function Home() {
   const [homeProducts, trendingProducts] = await Promise.all([
@@ -19,7 +20,7 @@ export default async function Home() {
 
       {/* 1 ── Hero carousel */}
       <Hero />
-
+<ProductCardWithSale/>
       {/* 2 ── Scrolling promo ticker */}
 
       {/* 3 ── Category grid */}

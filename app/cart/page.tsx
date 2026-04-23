@@ -5,6 +5,7 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { Trash2, X, Plus, Minus, ArrowRight, ShoppingBag, Lock } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 function CartPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -89,10 +90,8 @@ function CartPage() {
             <h2 className="text-lg font-semibold text-[#111827] mb-1">Your cart is empty</h2>
             <p className="text-sm text-[#6b7280] mb-6">Add some products to get started</p>
             <Link href="/products"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white
-                text-sm font-semibold rounded-xl hover:bg-[#1d4ed8] active:scale-95
-                transition-all duration-150 shadow-[0_4px_14px_rgba(37,99,235,0.3)]">
-              Browse Products <ArrowRight className="w-4 h-4" />
+              >
+              <Button>Browse Products <ArrowRight className="w-4 h-4" /></Button>
             </Link>
           </div>
         </div>

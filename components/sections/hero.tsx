@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Play, Pause, Volume2, VolumeX, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Button } from "../ui/button";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -295,7 +296,7 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
         {/* ── Main slide area ── */}
         <div
           className={cn(
-            "relative w-full h-[45vh] rounded-3xl md:h-[75vh] overflow-hidden bg-neutral-950",
+            "relative w-full h-[45vh] rounded-b-md rounded-t-xl md:h-[75vh] overflow-hidden bg-neutral-950",
             "ring-1 ring-white/5",
             hasCta && !isVideoPlaying && "cursor-pointer"
           )}
@@ -465,89 +466,111 @@ const Hero: React.FC<{ className?: string }> = ({ className }) => {
         </div>
 
         {/* ── Mobile text panel — below image ── */}
-        <div className="md:hidden bg-neutral-950 rounded-2xl mt-2 p-3">
-
-          <div className="flex justify-between items-start">
-            <div>
-              {current?.title && (
-                <h2
-                  key={`m-title-${selectedIndex}`}
-                  className="text-xl font-black tracking-tighter text-white"
-                  style={{ animation: 'fadeSlideUp 0.55s cubic-bezier(0.16,1,0.3,1) both' }}
-                >
-                  {current.title}
-                </h2>
-              )}
-
-              {current?.subtitle && (
-                <p
-                  key={`m-sub-${selectedIndex}`}
-                  className="text-sm text-white/40 leading-relaxed font-light mt-0.5"
-                  style={{ animation: 'fadeSlideUp 0.55s cubic-bezier(0.16,1,0.3,1) 0.1s both' }}
-                >
-                  {current.subtitle}
-                </p>
-              )}
-            </div>
-
-            {ctaLabel && ctaHref && (
-              <div
-                key={`m-cta-${selectedIndex}`}
-                style={{ animation: 'fadeSlideUp 0.55s cubic-bezier(0.16,1,0.3,1) 0.18s both' }}
-              >
-                <Link
-                  href={ctaHref}
-                  className="inline-flex items-center gap-1.5 mt-1
-                    text-xs text-white font-medium
-                    border border-white/15 rounded-full px-3 py-1.5
-                    hover:bg-white hover:text-black
-                    transition-all duration-300"
-                >
-                  {ctaLabel} <ArrowUpRight size={11} />
-                </Link>
-              </div>
-            )}
-          </div>
-
-          {/* Mobile bottom bar — slide nav */}
-          {banners.length > 1 && (
-            <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5">
-              <span className="font-mono text-[11px] text-white/20 tracking-wider">
-                <AnimatedNumber value={selectedIndex} />
-                <span className="mx-1.5 text-white/10">·</span>
-                {String(banners.length).padStart(2, '0')}
-              </span>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => selectedIndex > 0 && goTo(selectedIndex - 1)}
-                  disabled={selectedIndex === 0}
-                  className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center
-                    text-white/30 hover:text-white hover:border-white/30
-                    disabled:opacity-20 disabled:pointer-events-none
-                    transition-all duration-200 active:scale-95"
-                  aria-label="Previous"
-                >
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                    <path d="M7 2L3 6L7 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => selectedIndex < banners.length - 1 && goTo(selectedIndex + 1)}
-                  disabled={selectedIndex === banners.length - 1}
-                  className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center
-                    text-white/30 hover:text-white hover:border-white/30
-                    disabled:opacity-20 disabled:pointer-events-none
-                    transition-all duration-200 active:scale-95"
-                  aria-label="Next"
-                >
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                    <path d="M5 2L9 6L5 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
-              </div>
-            </div>
+        <div className="md:hidden bg-neutral-950 rounded-md mt-2">
+  {ctaLabel && ctaHref ? (
+    <Link href={ctaHref} className="block p-3">
+      {/* Title + Subtitle */}
+      {(current?.title || current?.subtitle) && (
+        <div>
+          {current?.title && (
+            <h2
+              key={`m-title-${selectedIndex}`}
+              className="text-xl font-black tracking-tighter text-white"
+              style={{ animation: 'fadeSlideUp 0.55s cubic-bezier(0.16,1,0.3,1) both' }}
+            >
+              {current.title}
+            </h2>
+          )}
+          {current?.subtitle && (
+            <p
+              key={`m-sub-${selectedIndex}`}
+              className="text-sm text-white/40 leading-relaxed font-light mt-0.5"
+              style={{ animation: 'fadeSlideUp 0.55s cubic-bezier(0.16,1,0.3,1) 0.1s both' }}
+            >
+              {current.subtitle}
+            </p>
           )}
         </div>
+      )}
+
+      {/* CTA — full width below text */}
+      <div
+        key={`m-cta-${selectedIndex}`}
+        className="mt-3"
+        style={{ animation: 'fadeSlideUp 0.55s cubic-bezier(0.16,1,0.3,1) 0.18s both' }}
+      >
+        <Button className="w-full justify-center pointer-events-none">
+          {ctaLabel} <ArrowUpRight size={11} />
+        </Button>
+      </div>
+    </Link>
+  ) : (
+    <div className="p-3">
+      {/* Title + Subtitle */}
+      {(current?.title || current?.subtitle) && (
+        <div>
+          {current?.title && (
+            <h2
+              key={`m-title-${selectedIndex}`}
+              className="text-xl font-black tracking-tighter text-white"
+              style={{ animation: 'fadeSlideUp 0.55s cubic-bezier(0.16,1,0.3,1) both' }}
+            >
+              {current.title}
+            </h2>
+          )}
+          {current?.subtitle && (
+            <p
+              key={`m-sub-${selectedIndex}`}
+              className="text-sm text-white/40 leading-relaxed font-light mt-0.5"
+              style={{ animation: 'fadeSlideUp 0.55s cubic-bezier(0.16,1,0.3,1) 0.1s both' }}
+            >
+              {current.subtitle}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  )}
+
+  {/* Slide nav */}
+  {banners.length > 1 && (
+    <div className="flex items-center justify-between px-3 pb-3 border-t border-white/5">
+      <span className="font-mono text-[11px] text-white/20 tracking-wider">
+        <AnimatedNumber value={selectedIndex} />
+        <span className="mx-1.5 text-white/10">·</span>
+        {String(banners.length).padStart(2, '0')}
+      </span>
+      <div className="flex gap-2">
+        <button
+          onClick={() => selectedIndex > 0 && goTo(selectedIndex - 1)}
+          disabled={selectedIndex === 0}
+          className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center
+            text-white/30 hover:text-white hover:border-white/30
+            disabled:opacity-20 disabled:pointer-events-none
+            transition-all duration-200 active:scale-95"
+          aria-label="Previous"
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M7 2L3 6L7 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+        <button
+          onClick={() => selectedIndex < banners.length - 1 && goTo(selectedIndex + 1)}
+          disabled={selectedIndex === banners.length - 1}
+          className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center
+            text-white/30 hover:text-white hover:border-white/30
+            disabled:opacity-20 disabled:pointer-events-none
+            transition-all duration-200 active:scale-95"
+          aria-label="Next"
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M5 2L9 6L5 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  )}
+</div>
 
       </section>
     </>

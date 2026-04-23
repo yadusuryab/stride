@@ -296,7 +296,7 @@ const AddToCartButton = ({
               { src: "/rupay.png", alt: "RuPay" },
               { src: "/paytm.jpg", alt: "Paytm" },
             ].map(({ src, alt }) => (
-              <Badge variant={'secondary'} className="bg-white border-primary border">
+              <Badge variant={'secondary'} key={alt} className="bg-white border-primary border">
               <img
                 key={src}
                 src={src}

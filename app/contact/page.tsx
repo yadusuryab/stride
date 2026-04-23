@@ -31,7 +31,7 @@ const CHANNELS = [
      <IconBrandInstagram/>
     ),
     label: "Instagram",
-    value: "@watchz_in_kerala",
+    value: "@stride.shoppe",
     href: process.env.NEXT_PUBLIC_INSTA,
     hint: "DM us anytime",
   },

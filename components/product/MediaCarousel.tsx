@@ -14,11 +14,19 @@ import {
 } from "@radix-ui/react-dialog";
 import { type EmblaOptionsType } from "embla-carousel";
 import useEmblaCarousel from "embla-carousel-react";
-import { MinusCircle, PlusCircle, X, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import {
+  MinusCircle,
+  PlusCircle,
+  X,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 type MediaItem = {
-  _type: 'image' | 'video';
+  _type: "image" | "video";
   _key: string;
   asset?: {
     url: string;
@@ -65,12 +73,12 @@ const getAspectRatioClass = (ratio?: string) => {
 
 // iOS Safari fix: force overflow-hidden to actually clip
 const iosSafariOverflowFix: React.CSSProperties = {
-  overflow: 'hidden',
+  overflow: "hidden",
   // Force GPU compositing layer — makes overflow-hidden clip correctly on iOS
-  WebkitTransform: 'translateZ(0)',
-  transform: 'translateZ(0)',
+  WebkitTransform: "translateZ(0)",
+  transform: "translateZ(0)",
   // The classic iOS rounded-corner overflow fix
-  WebkitMaskImage: '-webkit-radial-gradient(white, black)',
+  WebkitMaskImage: "-webkit-radial-gradient(white, black)",
 };
 
 const MediaContainer: React.FC<{
@@ -100,15 +108,18 @@ const MediaContainer: React.FC<{
 
   const getVideoSource = (item: MediaItem) => {
     if (item.videoUrl) {
-      if (item.videoUrl.includes('youtube.com') || item.videoUrl.includes('youtu.be')) {
-        return { type: 'youtube', url: item.videoUrl };
+      if (
+        item.videoUrl.includes("youtube.com") ||
+        item.videoUrl.includes("youtu.be")
+      ) {
+        return { type: "youtube", url: item.videoUrl };
       }
-      if (item.videoUrl.includes('vimeo.com')) {
-        return { type: 'vimeo', url: item.videoUrl };
+      if (item.videoUrl.includes("vimeo.com")) {
+        return { type: "vimeo", url: item.videoUrl };
       }
     }
     if (item.videoFile?.asset?.url) {
-      return { type: 'file', url: item.videoFile.asset.url };
+      return { type: "file", url: item.videoFile.asset.url };
     }
     return null;
   };
@@ -116,13 +127,13 @@ const MediaContainer: React.FC<{
   const videoSource = getVideoSource(media);
 
   useEffect(() => {
-    if (media._type === 'image') {
+    if (media._type === "image") {
       setImageUrl(media.asset?.url);
     }
   }, [media]);
 
   useEffect(() => {
-    if (media._type === 'video' && videoRef.current && isActive) {
+    if (media._type === "video" && videoRef.current && isActive) {
       if (isPlaying) {
         videoRef.current.play().catch((error) => {
           console.error("Error playing video:", error);
@@ -141,20 +152,20 @@ const MediaContainer: React.FC<{
   }, [isPlaying, onPlayStateChange]);
 
   useEffect(() => {
-    if (!isActive && media._type === 'video' && videoRef.current) {
+    if (!isActive && media._type === "video" && videoRef.current) {
       videoRef.current.pause();
       setIsPlaying(false);
     }
   }, [isActive, media._type]);
 
   const togglePlay = () => {
-    if (media._type === 'video') {
+    if (media._type === "video") {
       setIsPlaying(!isPlaying);
     }
   };
 
   const toggleMute = () => {
-    if (media._type === 'video' && videoRef.current) {
+    if (media._type === "video" && videoRef.current) {
       videoRef.current.muted = !isMuted;
       setIsMuted(!isMuted);
     }
@@ -167,7 +178,7 @@ const MediaContainer: React.FC<{
     setIsPlaying(false);
   };
 
-  if (media._type === 'image') {
+  if (media._type === "image") {
     return (
       // FIX: This wrapper must NOT add its own aspect-ratio because the parent
       // slide already has aspect-[3/4]. Adding another aspect-ratio here causes
@@ -176,7 +187,7 @@ const MediaContainer: React.FC<{
         className={cn("relative w-full bg-gray-100", className)}
         style={{
           // Fill 100% of the parent's constrained height
-          height: '100%',
+          height: "100%",
           ...iosSafariOverflowFix,
         }}
       >
@@ -188,18 +199,18 @@ const MediaContainer: React.FC<{
             // because Tailwind's absolute positioning can behave unexpectedly in
             // Safari when the parent uses aspect-ratio (not explicit height/width).
             style={{
-              position: 'absolute',
+              position: "absolute",
               inset: 0,
-              width: '100%',
-              height: '100%',
+              width: "100%",
+              height: "100%",
               // Prevent image from ever being larger than its container on iOS
-              maxWidth: '100%',
-              maxHeight: '100%',
+              maxWidth: "100%",
+              maxHeight: "100%",
               objectFit: fit,
-              display: 'block',
+              display: "block",
               // GPU layer helps Safari respect the constraint
-              WebkitTransform: 'translateZ(0)',
-              transform: 'translateZ(0)',
+              WebkitTransform: "translateZ(0)",
+              transform: "translateZ(0)",
             }}
             loading="lazy"
             draggable="false"
@@ -214,35 +225,35 @@ const MediaContainer: React.FC<{
     <div
       className={cn("relative w-full bg-black", className)}
       style={{
-        height: '100%',
+        height: "100%",
         ...iosSafariOverflowFix,
       }}
     >
-      {videoSource?.type === 'youtube' && (
+      {videoSource?.type === "youtube" && (
         <div className="relative w-full h-full">
           <iframe
-            src={`https://www.youtube.com/embed/${videoSource.url.split('v=')[1]?.split('&')[0]}?autoplay=${isActive && isPlaying ? 1 : 0}&mute=${isMuted ? 1 : 0}&controls=1&modestbranding=1&rel=0`}
+            src={`https://www.youtube.com/embed/${videoSource.url.split("v=")[1]?.split("&")[0]}?autoplay=${isActive && isPlaying ? 1 : 0}&mute=${isMuted ? 1 : 0}&controls=1&modestbranding=1&rel=0`}
             className="absolute inset-0 w-full h-full"
             allow="autoplay; encrypted-media; picture-in-picture"
             allowFullScreen
-            title={media.title || 'Product video'}
+            title={media.title || "Product video"}
           />
         </div>
       )}
 
-      {videoSource?.type === 'vimeo' && (
+      {videoSource?.type === "vimeo" && (
         <div className="relative w-full h-full">
           <iframe
-            src={`https://player.vimeo.com/video/${videoSource.url.split('vimeo.com/')[1]}?autoplay=${isActive && isPlaying ? 1 : 0}&muted=${isMuted ? 1 : 0}&controls=1&title=0&byline=0&portrait=0`}
+            src={`https://player.vimeo.com/video/${videoSource.url.split("vimeo.com/")[1]}?autoplay=${isActive && isPlaying ? 1 : 0}&muted=${isMuted ? 1 : 0}&controls=1&title=0&byline=0&portrait=0`}
             className="absolute inset-0 w-full h-full"
             allow="autoplay; fullscreen; picture-in-picture"
             allowFullScreen
-            title={media.title || 'Product video'}
+            title={media.title || "Product video"}
           />
         </div>
       )}
 
-      {videoSource?.type === 'file' && (
+      {videoSource?.type === "file" && (
         <div className="relative w-full h-full">
           <video
             ref={videoRef}
@@ -279,7 +290,11 @@ const MediaContainer: React.FC<{
                     className="bg-white/80 hover:bg-white rounded-full p-2 shadow-md transition-colors"
                     aria-label={isMuted ? "Unmute" : "Mute"}
                   >
-                    {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                    {isMuted ? (
+                      <VolumeX className="w-4 h-4" />
+                    ) : (
+                      <Volume2 className="w-4 h-4" />
+                    )}
                   </button>
                   <button
                     onClick={togglePlay}
@@ -294,22 +309,27 @@ const MediaContainer: React.FC<{
           )}
 
           <div className="absolute top-4 left-4 z-10">
-            <span className="px-2 py-1 text-xs font-medium bg-black/70 text-white rounded">VIDEO</span>
+            <span className="px-2 py-1 text-xs font-medium bg-black/70 text-white rounded">
+              VIDEO
+            </span>
           </div>
         </div>
       )}
 
-      {(videoSource?.type === 'youtube' || videoSource?.type === 'vimeo') && !isPlaying && showControls && !isFullscreen && (
-        <button
-          onClick={togglePlay}
-          className="absolute inset-0 flex items-center justify-center bg-black/20 group hover:bg-black/30 transition-all z-20"
-          aria-label="Play video"
-        >
-          <div className="w-16 h-16 md:w-20 md:h-20 bg-white/90 rounded-full flex items-center justify-center group-hover:bg-white transition-colors shadow-lg">
-            <Play className="w-8 h-8 md:w-10 md:h-10 text-black ml-1" />
-          </div>
-        </button>
-      )}
+      {(videoSource?.type === "youtube" || videoSource?.type === "vimeo") &&
+        !isPlaying &&
+        showControls &&
+        !isFullscreen && (
+          <button
+            onClick={togglePlay}
+            className="absolute inset-0 flex items-center justify-center bg-black/20 group hover:bg-black/30 transition-all z-20"
+            aria-label="Play video"
+          >
+            <div className="w-16 h-16 md:w-20 md:h-20 bg-white/90 rounded-full flex items-center justify-center group-hover:bg-white transition-colors shadow-lg">
+              <Play className="w-8 h-8 md:w-10 md:h-10 text-black ml-1" />
+            </div>
+          </button>
+        )}
     </div>
   );
 };
@@ -318,9 +338,10 @@ const Thumb: React.FC<ThumbPropType> = (props) => {
   const { media, index, onClick, selected } = props;
 
   const getThumbnailUrl = (item: MediaItem) => {
-    if (item._type === 'image') return item.asset?.url;
-    if (item._type === 'video') return item.poster?.asset?.url || item.asset?.url;
-    return '';
+    if (item._type === "image") return item.asset?.url;
+    if (item._type === "video")
+      return item.poster?.asset?.url || item.asset?.url;
+    return "";
   };
 
   const thumbnailUrl = getThumbnailUrl(media);
@@ -329,7 +350,9 @@ const Thumb: React.FC<ThumbPropType> = (props) => {
     <div
       className={cn(
         "transition-all duration-200",
-        selected ? "opacity-100 scale-105" : "opacity-60 hover:opacity-80 hover:scale-[1.02]",
+        selected
+          ? "opacity-100 scale-105"
+          : "opacity-60 hover:opacity-80 hover:scale-[1.02]",
         "flex-[0_0_22%] pl-3 sm:flex-[0_0_15%]"
       )}
     >
@@ -341,7 +364,7 @@ const Thumb: React.FC<ThumbPropType> = (props) => {
         <div
           className="relative w-full aspect-square bg-gray-100"
           style={{
-            borderRadius: '0.5rem',
+            borderRadius: "0.5rem",
             ...iosSafariOverflowFix,
           }}
         >
@@ -351,15 +374,15 @@ const Thumb: React.FC<ThumbPropType> = (props) => {
                 src={thumbnailUrl}
                 alt={media.alt || media.title || `Thumbnail ${index + 1}`}
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   inset: 0,
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  display: 'block',
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  display: "block",
                 }}
               />
-              {media._type === 'video' && (
+              {media._type === "video" && (
                 <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
                   <Play className="w-4 h-4 text-white" />
                 </div>
@@ -367,7 +390,7 @@ const Thumb: React.FC<ThumbPropType> = (props) => {
             </>
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gray-300">
-              {media._type === 'video' ? (
+              {media._type === "video" ? (
                 <Play className="w-6 h-6 text-gray-500" />
               ) : (
                 <div className="text-gray-400 text-xs">No preview</div>
@@ -446,7 +469,11 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
   }, [emblaApi, isControlled, onSlideChange, controlledIndex]);
 
   useEffect(() => {
-    if (isControlled && emblaApi && emblaApi.selectedScrollSnap() !== controlledIndex) {
+    if (
+      isControlled &&
+      emblaApi &&
+      emblaApi.selectedScrollSnap() !== controlledIndex
+    ) {
       emblaApi.scrollTo(controlledIndex);
     }
   }, [controlledIndex, emblaApi, isControlled]);
@@ -465,12 +492,15 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
-  const handleTouchStart = (e: React.TouchEvent) => setTouchStart(e.touches[0].clientX);
-  const handleTouchMove = (e: React.TouchEvent) => setTouchEnd(e.touches[0].clientX);
+  const handleTouchStart = (e: React.TouchEvent) =>
+    setTouchStart(e.touches[0].clientX);
+  const handleTouchMove = (e: React.TouchEvent) =>
+    setTouchEnd(e.touches[0].clientX);
   const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
     const distance = touchStart - touchEnd;
-    if (distance > 50 && currentIndex < media.length - 1) onThumbClick(currentIndex + 1);
+    if (distance > 50 && currentIndex < media.length - 1)
+      onThumbClick(currentIndex + 1);
     else if (distance < -50 && currentIndex > 0) onThumbClick(currentIndex - 1);
     setTouchStart(null);
     setTouchEnd(null);
@@ -541,22 +571,35 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
                   />
 
                   {/* Fullscreen trigger for images */}
-                  {item._type === 'image' && (
-                    <Dialog open={isFullscreenOpen} onOpenChange={setIsFullscreenOpen}>
+                  {item._type === "image" && (
+                    <Dialog
+                      open={isFullscreenOpen}
+                      onOpenChange={setIsFullscreenOpen}
+                    >
                       <DialogTrigger asChild>
                         <button
                           className="absolute bottom-4 right-4 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
                           aria-label="Open image in fullscreen"
                         >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"
+                            />
                           </svg>
                         </button>
                       </DialogTrigger>
 
                       <DialogPortal>
-                        <DialogOverlay className="fixed inset-0 z-50 bg-black/80" />
-                        <DialogContent className="fixed inset-0 z-50 flex items-center justify-center p-0">
+                        <DialogOverlay className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm" />
+                        <DialogContent className="fixed inset-0 z-50 flex items-center justify-center p-0 outline-none">
                           <DialogTitle className="sr-only">
                             {item.title || "Fullscreen Image"}
                           </DialogTitle>
@@ -564,45 +607,85 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
                             {item.alt || "Product image"}
                           </DialogDescription>
 
-                          <div className="relative flex h-screen w-screen items-center justify-center">
-                            <TransformWrapper initialScale={1} initialPositionX={0} initialPositionY={0}>
-                              {({ zoomIn, zoomOut }) => (
-                                <>
-                                  <TransformComponent>
-                                    <img
-                                      src={item.asset?.url || ''}
-                                      alt={item.alt || "Full size"}
-                                      className="max-h-[90vh] max-w-[90vw] object-contain"
-                                    />
-                                  </TransformComponent>
-                                  <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
-                                    <button
-                                      onClick={() => zoomOut()}
-                                      className="cursor-pointer rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
-                                      aria-label="Zoom out"
-                                    >
-                                      <MinusCircle className="size-6" />
-                                    </button>
-                                    <button
-                                      onClick={() => zoomIn()}
-                                      className="cursor-pointer rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
-                                      aria-label="Zoom in"
-                                    >
-                                      <PlusCircle className="size-6" />
-                                    </button>
-                                  </div>
-                                </>
-                              )}
-                            </TransformWrapper>
-                            <DialogClose asChild>
-                              <button
-                                className="absolute top-4 right-4 z-10 cursor-pointer rounded-full border bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
-                                aria-label="Close"
-                              >
-                                <X className="size-6" />
-                              </button>
-                            </DialogClose>
-                          </div>
+                          <TransformWrapper
+                            initialScale={1}
+                            minScale={0.5}
+                            maxScale={5}
+                            centerZoomedOut
+                            doubleClick={{ mode: "toggle", step: 2 }}
+                            wheel={{ smoothStep: 0.005 }}
+                            pinch={{ step: 5 }}
+                          >
+                            {({ zoomIn, zoomOut, resetTransform, state }:any) => (
+                              <div className="relative w-screen h-screen flex items-center justify-center">
+                                {/* Close */}
+                                <DialogClose asChild>
+                                  <button
+                                    className="absolute top-4 right-4 z-20 rounded-full bg-black/50 hover:bg-black/70 p-2.5 text-white transition-colors"
+                                    aria-label="Close"
+                                  >
+                                    <X className="size-5" />
+                                  </button>
+                                </DialogClose>
+
+                                {/* Zoom level badge */}
+                             
+
+                                {/* Image */}
+                                <TransformComponent
+                                  wrapperStyle={{
+                                    width: "100vw",
+                                    height: "100vh",
+                                  }}
+                                  contentStyle={{
+                                    width: "100vw",
+                                    height: "100vh",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                  }}
+                                >
+                                  <img
+                                    src={item.asset?.url || ""}
+                                    alt={item.alt || "Full size"}
+                                    className="max-h-[90vh] max-w-[90vw] object-contain select-none pointer-events-none"
+                                    draggable={false}
+                                  />
+                                </TransformComponent>
+
+                                {/* Bottom controls */}
+                                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3">
+                                  <button
+                                    onClick={() => zoomOut()}
+                                    className="rounded-full bg-black/50 hover:bg-black/70 p-3 text-white transition-colors backdrop-blur-sm"
+                                    aria-label="Zoom out"
+                                  >
+                                    <MinusCircle className="size-5" />
+                                  </button>
+                                  <button
+                                    onClick={() => resetTransform()}
+                                    className="rounded-full bg-white/10 hover:bg-white/20 px-4 py-2 text-white text-sm transition-colors backdrop-blur-sm"
+                                  >
+                                    Reset
+                                  </button>
+                                  <button
+                                    onClick={() => zoomIn()}
+                                    className="rounded-full bg-black/50 hover:bg-black/70 p-3 text-white transition-colors backdrop-blur-sm"
+                                    aria-label="Zoom in"
+                                  >
+                                    <PlusCircle className="size-5" />
+                                  </button>
+                                </div>
+
+                                {/* Hint */}
+                                {state?.scale === 1 && (
+                                  <p className="absolute bottom-20 left-1/2 -translate-x-1/2 text-white/40 text-xs">
+                                    Double-tap to zoom
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                          </TransformWrapper>
                         </DialogContent>
                       </DialogPortal>
                     </Dialog>
@@ -654,8 +737,10 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
           <span className="font-medium">
             {currentIndex + 1} / {media.length}
           </span>
-          {currentMedia?._type === 'video' && (
-            <span className="ml-2 px-2 py-1 text-xs bg-gray-200 rounded">VIDEO</span>
+          {currentMedia?._type === "video" && (
+            <span className="ml-2 px-2 py-1 text-xs bg-gray-200 rounded">
+              VIDEO
+            </span>
           )}
         </div>
 
@@ -666,7 +751,9 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
               onClick={() => onThumbClick(index)}
               className={cn(
                 "w-2 h-2 rounded-full transition-all",
-                currentIndex === index ? "bg-black" : "bg-gray-300 hover:bg-gray-500"
+                currentIndex === index
+                  ? "bg-black"
+                  : "bg-gray-300 hover:bg-gray-500"
               )}
               aria-label={`Go to slide ${index + 1}`}
             />
