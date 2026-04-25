@@ -21,7 +21,7 @@ import MarqueeStrip from "../sections/marquee-strip";
 const HIDE_SEARCH_PATHS = [
   "/checkout",
   "/cart",
-  "/checkout/success",
+  "/checkout",
   "/account",
   "/wishlist",
   "/product",

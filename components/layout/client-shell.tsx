@@ -8,13 +8,14 @@ import Footer from "./footer";
 export function ClientShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin");
+  const isCheckout = pathname?.startsWith("/checkout");
 
   return (
     <>
-      {!isAdmin && <Header />}
+      {!isAdmin && !isCheckout && <Header />}
       <main className="flex-1">{children}</main>
-      {!isAdmin && <Footer />}
-      {!isAdmin && <WhatsAppButton />}
+      {!isAdmin && !isCheckout && <Footer />}
+      {!isAdmin && !isCheckout && <WhatsAppButton />}
     </>
   );
 }
