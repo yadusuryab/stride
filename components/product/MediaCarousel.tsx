@@ -10,7 +10,6 @@ import {
   DialogOverlay,
   DialogPortal,
   DialogTitle,
-  DialogTrigger,
 } from "@radix-ui/react-dialog";
 import { type EmblaOptionsType } from "embla-carousel";
 import useEmblaCarousel from "embla-carousel-react";
@@ -22,6 +21,8 @@ import {
   Pause,
   Volume2,
   VolumeX,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
@@ -74,10 +75,8 @@ const getAspectRatioClass = (ratio?: string) => {
 // iOS Safari fix: force overflow-hidden to actually clip
 const iosSafariOverflowFix: React.CSSProperties = {
   overflow: "hidden",
-  // Force GPU compositing layer — makes overflow-hidden clip correctly on iOS
   WebkitTransform: "translateZ(0)",
   transform: "translateZ(0)",
-  // The classic iOS rounded-corner overflow fix
   WebkitMaskImage: "-webkit-radial-gradient(white, black)",
 };
 
@@ -180,13 +179,9 @@ const MediaContainer: React.FC<{
 
   if (media._type === "image") {
     return (
-      // FIX: This wrapper must NOT add its own aspect-ratio because the parent
-      // slide already has aspect-[3/4]. Adding another aspect-ratio here causes
-      // the image to overflow on iOS Safari.
       <div
         className={cn("relative w-full bg-gray-100", className)}
         style={{
-          // Fill 100% of the parent's constrained height
           height: "100%",
           ...iosSafariOverflowFix,
         }}
@@ -195,20 +190,15 @@ const MediaContainer: React.FC<{
           <img
             src={imageUrl}
             alt={media.alt || media.title || "Product image"}
-            // FIX: Use inline styles instead of Tailwind "absolute inset-0 h-full w-full"
-            // because Tailwind's absolute positioning can behave unexpectedly in
-            // Safari when the parent uses aspect-ratio (not explicit height/width).
             style={{
               position: "absolute",
               inset: 0,
               width: "100%",
               height: "100%",
-              // Prevent image from ever being larger than its container on iOS
               maxWidth: "100%",
               maxHeight: "100%",
               objectFit: fit,
               display: "block",
-              // GPU layer helps Safari respect the constraint
               WebkitTransform: "translateZ(0)",
               transform: "translateZ(0)",
             }}
@@ -437,6 +427,26 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
   const currentIndex = isControlled ? controlledIndex : internalSelectedIndex;
   const currentMedia = media[currentIndex];
 
+  // Single Dialog — track fullscreen by index into image-only list for prev/next nav
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
+  const [fullscreenIndex, setFullscreenIndex] = useState(0);
+  const imageOnlyMedia = media.filter((m) => m._type === "image");
+  const fullscreenMedia = imageOnlyMedia[fullscreenIndex] ?? null;
+  const goFullscreenPrev = () => setFullscreenIndex((i) => Math.max(0, i - 1));
+  const goFullscreenNext = () =>
+    setFullscreenIndex((i) => Math.min(imageOnlyMedia.length - 1, i + 1));
+
+  // Keyboard navigation for fullscreen
+  useEffect(() => {
+    if (!isFullscreenOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") goFullscreenPrev();
+      if (e.key === "ArrowRight") goFullscreenNext();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [isFullscreenOpen, fullscreenIndex]);
+
   const [emblaRef, emblaApi] = useEmblaCarousel({
     ...opts,
     align: "start",
@@ -506,8 +516,6 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
     setTouchEnd(null);
   };
 
-  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
-
   if (!media || media.length === 0) {
     return (
       <div className={cn("relative w-full", className)}>
@@ -544,12 +552,6 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
                 role="group"
                 aria-roledescription="slide"
               >
-                {/*
-                  FIX: This is the SINGLE source-of-truth for sizing.
-                  aspect-[3/4] here controls the height. MediaContainer MUST NOT
-                  add another aspect-ratio wrapper on top — it just fills this box.
-                  iOS Safari overflows when two nested elements both define aspect-ratio.
-                */}
                 <div
                   className="relative aspect-[3/4] rounded-lg"
                   style={iosSafariOverflowFix}
@@ -557,9 +559,6 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
                   <MediaContainer
                     media={item}
                     fit={imageFit}
-                    // FIX: Don't pass aspectRatio to MediaContainer — the parent
-                    // already controls the dimensions. Passing it caused a double
-                    // aspect-ratio nesting which breaks iOS Safari.
                     aspectRatio={undefined}
                     showControls={showControls}
                     className="absolute inset-0 w-full h-full rounded-lg"
@@ -570,125 +569,33 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
                     isFullscreen={false}
                   />
 
-                  {/* Fullscreen trigger for images */}
+                  {/* FIX: Only the trigger button lives inside the map — no Dialog here */}
                   {item._type === "image" && (
-                    <Dialog
-                      open={isFullscreenOpen}
-                      onOpenChange={setIsFullscreenOpen}
+                    <button
+                      className="absolute bottom-4 right-4 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                      aria-label="Open image in fullscreen"
+                      onClick={() => {
+                        const imgIdx = imageOnlyMedia.findIndex(
+                          (m) => m._key === item._key
+                        );
+                        setFullscreenIndex(imgIdx >= 0 ? imgIdx : 0);
+                        setIsFullscreenOpen(true);
+                      }}
                     >
-                      <DialogTrigger asChild>
-                        <button
-                          className="absolute bottom-4 right-4 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
-                          aria-label="Open image in fullscreen"
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"
-                            />
-                          </svg>
-                        </button>
-                      </DialogTrigger>
-
-                      <DialogPortal>
-                        <DialogOverlay className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm" />
-                        <DialogContent className="fixed inset-0 z-50 flex items-center justify-center p-0 outline-none">
-                          <DialogTitle className="sr-only">
-                            {item.title || "Fullscreen Image"}
-                          </DialogTitle>
-                          <DialogDescription className="sr-only">
-                            {item.alt || "Product image"}
-                          </DialogDescription>
-
-                          <TransformWrapper
-                            initialScale={1}
-                            minScale={0.5}
-                            maxScale={5}
-                            centerZoomedOut
-                            doubleClick={{ mode: "toggle", step: 2 }}
-                            wheel={{ smoothStep: 0.005 }}
-                            pinch={{ step: 5 }}
-                          >
-                            {({ zoomIn, zoomOut, resetTransform, state }:any) => (
-                              <div className="relative w-screen h-screen flex items-center justify-center">
-                                {/* Close */}
-                                <DialogClose asChild>
-                                  <button
-                                    className="absolute top-4 right-4 z-20 rounded-full bg-black/50 hover:bg-black/70 p-2.5 text-white transition-colors"
-                                    aria-label="Close"
-                                  >
-                                    <X className="size-5" />
-                                  </button>
-                                </DialogClose>
-
-                                {/* Zoom level badge */}
-                             
-
-                                {/* Image */}
-                                <TransformComponent
-                                  wrapperStyle={{
-                                    width: "100vw",
-                                    height: "100vh",
-                                  }}
-                                  contentStyle={{
-                                    width: "100vw",
-                                    height: "100vh",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                  }}
-                                >
-                                  <img
-                                    src={item.asset?.url || ""}
-                                    alt={item.alt || "Full size"}
-                                    className="max-h-[90vh] max-w-[90vw] object-contain select-none pointer-events-none"
-                                    draggable={false}
-                                  />
-                                </TransformComponent>
-
-                                {/* Bottom controls */}
-                                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3">
-                                  <button
-                                    onClick={() => zoomOut()}
-                                    className="rounded-full bg-black/50 hover:bg-black/70 p-3 text-white transition-colors backdrop-blur-sm"
-                                    aria-label="Zoom out"
-                                  >
-                                    <MinusCircle className="size-5" />
-                                  </button>
-                                  <button
-                                    onClick={() => resetTransform()}
-                                    className="rounded-full bg-white/10 hover:bg-white/20 px-4 py-2 text-white text-sm transition-colors backdrop-blur-sm"
-                                  >
-                                    Reset
-                                  </button>
-                                  <button
-                                    onClick={() => zoomIn()}
-                                    className="rounded-full bg-black/50 hover:bg-black/70 p-3 text-white transition-colors backdrop-blur-sm"
-                                    aria-label="Zoom in"
-                                  >
-                                    <PlusCircle className="size-5" />
-                                  </button>
-                                </div>
-
-                                {/* Hint */}
-                                {state?.scale === 1 && (
-                                  <p className="absolute bottom-20 left-1/2 -translate-x-1/2 text-white/40 text-xs">
-                                    Double-tap to zoom
-                                  </p>
-                                )}
-                              </div>
-                            )}
-                          </TransformWrapper>
-                        </DialogContent>
-                      </DialogPortal>
-                    </Dialog>
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"
+                        />
+                      </svg>
+                    </button>
                   )}
 
                   {/* Clickable overlay for peek portions */}
@@ -703,32 +610,6 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
             ))}
           </div>
         </div>
-
-        {/* Navigation Arrows */}
-        {/* {media.length > 1 && (
-          <>
-            <button
-              onClick={() => onThumbClick(Math.max(0, currentIndex - 1))}
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/80 hover:bg-white rounded-full p-3 shadow-lg transition-all"
-              disabled={currentIndex === 0}
-              aria-label="Previous media"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button
-              onClick={() => onThumbClick(Math.min(media.length - 1, currentIndex + 1))}
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/80 hover:bg-white rounded-full p-3 shadow-lg transition-all"
-              disabled={currentIndex === media.length - 1}
-              aria-label="Next media"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </>
-        )} */}
       </div>
 
       {/* Media Info */}
@@ -760,6 +641,129 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
           ))}
         </div>
       </div>
+
+      {/* FIX: Single Dialog rendered ONCE outside the map, uses fullscreenMedia state */}
+      {fullscreenMedia && (
+        <Dialog open={isFullscreenOpen} onOpenChange={setIsFullscreenOpen}>
+          <DialogPortal>
+            <DialogOverlay className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm" />
+            <DialogContent className="fixed inset-0 z-50 flex items-center justify-center p-0 outline-none">
+              <DialogTitle className="sr-only">
+                {fullscreenMedia.title || "Fullscreen Image"}
+              </DialogTitle>
+              <DialogDescription className="sr-only">
+                {fullscreenMedia.alt || "Product image"}
+              </DialogDescription>
+
+              <TransformWrapper
+                key={fullscreenIndex}
+                initialScale={1}
+                minScale={0.5}
+                maxScale={5}
+                centerZoomedOut
+                doubleClick={{ mode: "toggle", step: 2 }}
+                wheel={{ smoothStep: 0.005 }}
+                pinch={{ step: 5 }}
+              >
+                {({ zoomIn, zoomOut, resetTransform, state }: any) => {
+                  return (
+                  <div className="relative w-screen h-screen flex items-center justify-center">
+                    {/* Close */}
+                    <DialogClose asChild>
+                      <button
+                        className="absolute top-4 right-4 z-20 rounded-full bg-black/50 hover:bg-black/70 p-2.5 text-white transition-colors"
+                        aria-label="Close"
+                      >
+                        <X className="size-5" />
+                      </button>
+                    </DialogClose>
+
+                    {/* Counter */}
+                    {imageOnlyMedia.length > 1 && (
+                      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 text-white/60 text-sm">
+                        {fullscreenIndex + 1} / {imageOnlyMedia.length}
+                      </div>
+                    )}
+
+                    {/* Prev button */}
+                    {fullscreenIndex > 0 && (
+                      <button
+                        onClick={() => goFullscreenPrev()}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 rounded-full bg-black/50 hover:bg-black/70 p-3 text-white transition-colors backdrop-blur-sm"
+                        aria-label="Previous image"
+                      >
+                        <ChevronLeft className="size-6" />
+                      </button>
+                    )}
+
+                    {/* Next button */}
+                    {fullscreenIndex < imageOnlyMedia.length - 1 && (
+                      <button
+                        onClick={() => goFullscreenNext()}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 rounded-full bg-black/50 hover:bg-black/70 p-3 text-white transition-colors backdrop-blur-sm"
+                        aria-label="Next image"
+                      >
+                        <ChevronRight className="size-6" />
+                      </button>
+                    )}
+
+                    {/* Image */}
+                    <TransformComponent
+                      wrapperStyle={{ width: "100vw", height: "100vh" }}
+                      contentStyle={{
+                        width: "100vw",
+                        height: "100vh",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <img
+                        src={fullscreenMedia.asset?.url || ""}
+                        alt={fullscreenMedia.alt || "Full size"}
+                        className="max-h-[90vh] max-w-[90vw] object-contain select-none pointer-events-none"
+                        draggable={false}
+                      />
+                    </TransformComponent>
+
+                    {/* Bottom controls */}
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3">
+                      <button
+                        onClick={() => zoomOut()}
+                        className="rounded-full bg-black/50 hover:bg-black/70 p-3 text-white transition-colors backdrop-blur-sm"
+                        aria-label="Zoom out"
+                      >
+                        <MinusCircle className="size-5" />
+                      </button>
+                      <button
+                        onClick={() => resetTransform()}
+                        className="rounded-full bg-white/10 hover:bg-white/20 px-4 py-2 text-white text-sm transition-colors backdrop-blur-sm"
+                      >
+                        Reset
+                      </button>
+                      <button
+                        onClick={() => zoomIn()}
+                        className="rounded-full bg-black/50 hover:bg-black/70 p-3 text-white transition-colors backdrop-blur-sm"
+                        aria-label="Zoom in"
+                      >
+                        <PlusCircle className="size-5" />
+                      </button>
+                    </div>
+
+                    {/* Hint */}
+                    {state?.scale === 1 && (
+                      <p className="absolute bottom-20 left-1/2 -translate-x-1/2 text-white/40 text-xs">
+                        Double-tap to zoom · ← → to navigate
+                      </p>
+                    )}
+                  </div>
+                  );
+                }}
+              </TransformWrapper>
+            </DialogContent>
+          </DialogPortal>
+        </Dialog>
+      )}
     </div>
   );
 };
